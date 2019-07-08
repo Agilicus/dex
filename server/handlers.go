@@ -149,6 +149,7 @@ func (s *Server) handlePublicKeys(w http.ResponseWriter, r *http.Request) {
 
 type discovery struct {
 	Issuer        string   `json:"issuer"`
+	Callback      string   `json:"callback"`
 	Auth          string   `json:"authorization_endpoint"`
 	Token         string   `json:"token_endpoint"`
 	Keys          string   `json:"jwks_uri"`
@@ -164,6 +165,7 @@ type discovery struct {
 func (s *Server) discoveryHandler() (http.HandlerFunc, error) {
 	d := discovery{
 		Issuer:      s.issuerURL.String(),
+		Callback:    s.callbackConfig.String(),
 		Auth:        s.absURL("/auth"),
 		Token:       s.absURL("/token"),
 		Keys:        s.absURL("/keys"),
@@ -305,7 +307,9 @@ func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
 			// Use the auth request ID as the "state" token.
 			//
 			// TODO(ericchiang): Is this appropriate or should we also be using a nonce?
-			callbackURL, err := conn.LoginURL(scopes, s.absURL("/callback"), authReqID)
+		//	callbackURL, err := conn.LoginURL(scopes, s.absURL("/###callback"), authReqID)
+	       // 	callbackURL, err := conn.LoginURL(scopes, "http://127.0.0.1:5555/callback", authReqID)
+	        	callbackURL, err := conn.LoginURL(scopes, s.callback("k"),  authReqID)
 			if err != nil {
 				s.logger.Errorf("Connector %q returned error when creating callback: %v", connID, err)
 				s.renderError(w, http.StatusInternalServerError, "Login error.")

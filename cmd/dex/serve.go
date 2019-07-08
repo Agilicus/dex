@@ -78,7 +78,6 @@ func serve(cmd *cobra.Command, args []string) error {
 		errMsg string
 	}{
 		{c.Issuer == "", "no issuer specified in config file"},
-		{c.Callback == "", "no callback url specified in config file"},
 		{!c.EnablePasswordDB && len(c.StaticPasswords) != 0, "cannot specify static passwords without enabling password db"},
 		{c.Storage.Config == nil, "no storage supplied in config file"},
 		{c.Web.HTTP == "" && c.Web.HTTPS == "", "must supply a HTTP/HTTPS  address to listen on"},
@@ -97,7 +96,12 @@ func serve(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Infof("config issuer: %s", c.Issuer)
-	logger.Infof("config callback url: %s", c.Callback)
+
+	if c.Callback == "" {
+		logger.Infof("No callback url specified, using default %s/callback", c.Issuer)
+	} else {
+	        logger.Infof("config callback url: %s", c.Callback)
+	}
 
 	prometheusRegistry := prometheus.NewRegistry()
 	err = prometheusRegistry.Register(prometheus.NewGoCollector())

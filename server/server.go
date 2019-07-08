@@ -334,8 +334,14 @@ func (s *Server) absURL(pathItems ...string) string {
 }
 func (s *Server) callback(pathItems ...string) string {
 	u := s.callbackConfig
-	u.Path = s.absCallbackPath(pathItems ...)
-	return u.String()
+	if u.String() == "" {
+		u := s.issuerURL
+		u.Path = s.absPath(pathItems...)
+		return u.String()
+	}else{
+		u.Path = s.absCallbackPath(pathItems ...)
+		return u.String()
+	}
 }
 
 func newPasswordDB(s storage.Storage) interface {

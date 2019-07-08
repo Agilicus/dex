@@ -306,12 +306,10 @@ func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
 		case connector.CallbackConnector:
 			// Use the auth request ID as the "state" token.
 			//
-			// TODO(ericchiang): Is this appropriate or should we also be using a nonce?
-		//	callbackURL, err := conn.LoginURL(scopes, s.absURL("/###callback"), authReqID)
-	       // 	callbackURL, err := conn.LoginURL(scopes, "http://127.0.0.1:5555/callback", authReqID)
-	        	callbackURL, err := conn.LoginURL(scopes, s.callback("k"),  authReqID)
+			// TODO(ericchiang): Is this appropriate or should we also be using a nonce? 
+                        callbackURL, err := conn.LoginURL(scopes, s.callback("/callback"),  authReqID)
 			if err != nil {
-				s.logger.Errorf("Connector %q returned error when creating callback: %v", connID, err)
+		                s.logger.Errorf("Connector %q returned error when creating callback: %v", connID, err)
 				s.renderError(w, http.StatusInternalServerError, "Login error.")
 				return
 			}

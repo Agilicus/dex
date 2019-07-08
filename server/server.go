@@ -162,12 +162,11 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 		return nil, fmt.Errorf("server: can't parse issuer URL")
 	}
 
-//added
 	callbackConfig, err := url.Parse(c.Callback)
 	if err !=nil {
 		return nil, fmt. Errorf("server: can't parse callback URL")
-	}	
-	
+	}
+
 	if c.Storage == nil {
 		return nil, errors.New("server: storage cannot be nil")
 	}

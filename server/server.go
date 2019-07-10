@@ -121,7 +121,7 @@ func value(val, defaultValue time.Duration) time.Duration {
 // Server is the top level object.
 type Server struct {
 	issuerURL url.URL
-	
+
 	callbackConfig url.URL
 
 	// mutex for the connectors map.
@@ -204,7 +204,7 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 
 	s := &Server{
 		issuerURL:              *issuerURL,
-		callbackConfig:         *callbackConfig, 
+		callbackConfig:         *callbackConfig,
 		connectors:             make(map[string]Connector),
 		storage:                newKeyCacher(c.Storage, now),
 		supportedResponseTypes: supported,
@@ -331,7 +331,8 @@ func (s *Server) absURL(pathItems ...string) string {
 	u.Path = s.absPath(pathItems...)
 	return u.String()
 }
-func (s *Server) callback(pathItems ...string) string {
+
+func (s *Server) useCallback(pathItems ...string) string {
 	u := s.callbackConfig
 	if u.String() == "" {
 		u := s.issuerURL
@@ -341,6 +342,15 @@ func (s *Server) callback(pathItems ...string) string {
 		u.Path = s.absCallbackPath(pathItems ...)
 		return u.String()
 	}
+}
+
+func (s *Server) useCallbackRelative() string {
+        u := s.callbackConfig
+        if u.String() == "" {
+		return s.issuerURL.Path
+        }else{
+                return s.callbackConfig.Path
+        }
 }
 
 func newPasswordDB(s storage.Storage) interface {

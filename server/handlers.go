@@ -307,7 +307,7 @@ func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
 			// Use the auth request ID as the "state" token.
 			//
 			// TODO(ericchiang): Is this appropriate or should we also be using a nonce? 
-                        callbackURL, err := conn.LoginURL(scopes, s.useCallback("/callback"),  authReqID)
+      callbackURL, err := conn.LoginURL(scopes, s.useCallback("/callback"),  authReqID)
 			if err != nil {
 		                s.logger.Errorf("Connector %q returned error when creating callback: %v", connID, err)
 				s.renderError(w, http.StatusInternalServerError, "Login error.")

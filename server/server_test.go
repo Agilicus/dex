@@ -15,7 +15,6 @@ import (
 	"os"
 	"reflect"
 	"sort"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -1201,7 +1200,7 @@ func TestRefreshTokenFlow(t *testing.T) {
 		t.Errorf("Token refreshed with invalid refresh token.")
 	}
 }
-func TestCallbackURL(t *testing.T) {
+func TestNonDefaultCallbackURL(t *testing.T) {
 
 	state := "state"
 	now := func() time.Time { return time.Now() }
@@ -1220,24 +1219,19 @@ func TestCallbackURL(t *testing.T) {
 
 	var oauth2Client oauth2Client
 
-	oauth2Client.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		callbackCheck := ""
+	callbackCheck := false
 
-		if r.URL.Path == "/custom/callback" {
-			//verifys that the callback was changed
-			callbackCheck = "true"
-		} else {
+	oauth2Client.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		if r.URL.Path != "/custom/callback" {
 			// User is visiting app first time. Redirect to dex.
 			url := oauth2Client.config.AuthCodeURL(state)
 			http.Redirect(w, r, url, http.StatusSeeOther)
 			return
 		}
-		_, err1 := strconv.ParseBool(callbackCheck)
-		if err1 != nil {
-			t.Fatalf("callback failed")
-		}
+		//verifys that the callback was changed
+		callbackCheck = true
 
-		// User is at '/callback' so they were just redirected _from_ dex.
 		q := r.URL.Query()
 
 		if errType := q.Get("error"); errType != "" {
@@ -1282,6 +1276,10 @@ func TestCallbackURL(t *testing.T) {
 
 	if _, err = http.Get(oauth2Client.server.URL + "/login"); err != nil {
 		t.Fatalf("get failed: %v", err)
+	}
+
+	if !callbackCheck {
+		t.Fatalf("callback failed")
 	}
 
 }
